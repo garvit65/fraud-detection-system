@@ -6,6 +6,8 @@ from backend.prediction import predict_fraud
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.express as px
+# Run server
+import os
 
 # Initialize app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -258,6 +260,7 @@ def update_live(n, data):
         )
     ])
 
-# Run server
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
