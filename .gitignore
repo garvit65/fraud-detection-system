@@ -1,0 +1,6 @@
+venv/
+__pycache__/
+*.pyc
+models/model.pkl
+data/paysim.csv
+data/paysim_small.csv
