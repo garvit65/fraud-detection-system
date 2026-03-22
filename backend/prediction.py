@@ -11,36 +11,32 @@ def predict_fraud(df):
 
     required_cols = ['amount', 'oldbalanceOrg', 'newbalanceOrig']
 
-    if all(col in df.columns for col in required_cols):
+    # Check missing columns
+    missing = [col for col in required_cols if col not in df.columns]
+    if missing:
+        return df.assign(Error=f"Missing columns: {missing}")
 
-        # Feature Engineering (same as training)
-        df['balance_diff'] = df['oldbalanceOrg'] - df['newbalanceOrig']
-        X = df[['amount', 'oldbalanceOrg', 'newbalanceOrig', 'balance_diff']]
+    # Feature Engineering
+    df['balance_diff'] = df['oldbalanceOrg'] - df['newbalanceOrig']
 
-        # Prediction
-        probs = model.predict_proba(X)[:, 1]
-        df['Probability'] = probs.round(2)
+    # Select only needed features
+    X = df[['amount', 'oldbalanceOrg', 'newbalanceOrig', 'balance_diff']]
 
-        df['Prediction'] = (df['Probability'] > 0.3).astype(int)
+    # Prediction
+    probs = model.predict_proba(X)[:, 1]
+    df['Probability'] = probs.round(2)
 
-        # Probability
-        probs = model.predict_proba(X)[:, 1]
-        df['Probability'] = probs.round(2)
+    df['Prediction'] = (df['Probability'] > 0.3).astype(int)
 
-        # Risk classification
-        def get_risk(p):
-            if p < 0.4:
-                return "Low"
-            elif p < 0.7:
-                return "Medium"
-            else:
-                return "High"
+    # Risk classification
+    def get_risk(p):
+        if p < 0.4:
+            return "Low"
+        elif p < 0.7:
+            return "Medium"
+        else:
+            return "High"
 
-        df['Risk'] = df['Probability'].apply(get_risk)
-
-    else:
-        return pd.DataFrame({
-            "Error": ["Dataset must contain: amount, oldbalanceOrg, newbalanceOrig"]
-        })
+    df['Risk'] = df['Probability'].apply(get_risk)
 
     return df
